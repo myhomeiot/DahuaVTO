@@ -2,8 +2,9 @@
   "domain": "dahua_vto",
   "name": "Dahua VTO",
   "version": "1.0.0",
-  "documentation": "",
+  "documentation": "https://github.com/myhomeiot/DahuaVTO",
   "dependencies": [],
-  "codeowners": [],
+  "codeowners": ["@myhomeiot"],
+  "issue_tracker": "https://github.com/myhomeiot/DahuaVTO/issues",
   "requirements": []
 }
