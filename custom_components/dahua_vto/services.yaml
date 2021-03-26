@@ -1,0 +1,12 @@
+open_door:
+  description: Open door
+  fields:
+    entity_id:
+      description: Entity ID of sensor
+      example: sensor.dahua_vto
+    channel:
+      description: Number of channel starting from 1
+      example: 1
+    short_number:
+      description: Short number to show in log as Room No.
+      example: HA
