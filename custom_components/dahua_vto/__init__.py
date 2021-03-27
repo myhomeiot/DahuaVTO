@@ -19,7 +19,8 @@ SERVICE_OPEN_DOOR_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ENTITY_ID): cv.string,
         vol.Required(CONF_CHANNEL): int,
-        vol.Optional(CONF_SHORT_NUMBER, default=DEFAULT_SHORT_NUMBER): cv.string,
+        vol.Optional(CONF_SHORT_NUMBER,
+                     default=DEFAULT_SHORT_NUMBER): cv.string,
     }
 )
 
@@ -32,7 +33,9 @@ async def async_setup(hass: HomeAssistant, config: dict):
                 if entity.protocol is None:
                     raise HomeAssistantError("not connected")
                 try:
-                    return await entity.protocol.open_door(event.data[CONF_CHANNEL] - 1, event.data[CONF_SHORT_NUMBER])
+                    return await entity.protocol.open_door(
+                        event.data[CONF_CHANNEL] - 1,
+                        event.data[CONF_SHORT_NUMBER])
                 except asyncio.TimeoutError:
                     raise HomeAssistantError("timeout")
         else:
@@ -40,6 +43,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
 
     hass.data.setdefault(DOMAIN, {})
     hass.helpers.service.async_register_admin_service(
-        DOMAIN, SERVICE_OPEN_DOOR, service_open_door, schema=SERVICE_OPEN_DOOR_SCHEMA
+        DOMAIN, SERVICE_OPEN_DOOR, service_open_door,
+        schema=SERVICE_OPEN_DOOR_SCHEMA
     )
     return True

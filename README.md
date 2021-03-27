@@ -1,3 +1,5 @@
+[![Validate](https://github.com/myhomeiot/DahuaVTO/workflows/Validate/badge.svg)](https://github.com/myhomeiot/DahuaVTO/actions)
+
 A Home Assistant custom integration for control Dahua VTO/VTH devices.
 
 The following models are reported as working:
@@ -44,10 +46,11 @@ sensor:
   - platform: dahua_vto
     name: NAME_HERE
     host: HOST_HERE
-    port: PORT_HERE optional, default is 5000
+    timeout: TIMEOUT_HERE optional, default 10
+    port: PORT_HERE optional, default 5000
     username: USERNAME_HERE_OR_secrets.yaml
     password: PASSWORD_HERE_OR_secrets.yaml
-    scan_interval: INTERVAL_HERE optional, default 60
+    scan_interval: SCAN_INTERVAL_HERE optional, default 60
 ```
 
 Example:
