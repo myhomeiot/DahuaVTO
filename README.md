@@ -149,7 +149,7 @@ logger:
 
 - [@mcw0 Dahua-JSON-Debug-Console-v2.py](https://github.com/mcw0/Tools)
 - [Dahua intercom - API](https://ipcamtalk.com/threads/dahua-intercom-api-for-vth1550ch.45455)
-- [asm.cz](ftp://anonymous:@ftp.asm.cz/Dahua/videovratni)
+- ftp://ftp.asm.cz/Dahua/videovratni
 
 # Thanks to:
 [@elad-bar](https://github.com/elad-bar/DahuaVTO2MQTT)
