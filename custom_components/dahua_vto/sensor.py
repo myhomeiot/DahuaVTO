@@ -43,15 +43,15 @@ async def async_setup_platform(
     name = config[CONF_NAME]
     entity = DahuaVTO(hass, name, config)
     hass.data[DOMAIN][name] = entity
-    hass.loop.create_task(entity.async_run())
     add_entities([entity])
+    hass.loop.create_task(entity.async_run())
     return True
 
 
 class DahuaVTOClient(asyncio.Protocol):
 
-    def __init__(self, hass, name, username, password, on_connection_lost):
-        self.name = name
+    def __init__(self, hass, entity, username, password, on_connection_lost):
+        self.entity = entity
         self.hass = hass
         self.username = username
         self.password = password
@@ -60,8 +60,8 @@ class DahuaVTOClient(asyncio.Protocol):
 
         self.request_id = 0
         self.sessionId = 0
-        self.chunk_remaining = 0
-        self.chunk = None
+        self.chunk = b''
+        self.header_len = struct.calcsize(DAHUA_HEADER_FORMAT)
         self.keepAliveInterval = None
         self.transport = None
         self.heartbeat = None
@@ -112,39 +112,34 @@ class DahuaVTOClient(asyncio.Protocol):
                        "params": {"codes": ["All"]}})
         elif message.get("method") == "client.notifyEventStream":
             for message in params.get("eventList"):
-                message["name"] = self.name
+                message["entity_id"] = self.entity.entity_id
                 self.hass.bus.fire(DOMAIN, message)
 
     def data_received(self, data):
         try:
-            if self.chunk_remaining > 0:
-                packet = data.decode("utf-8", "ignore")
-                self.chunk += packet
-                self.chunk_remaining -= len(packet)
-                if self.chunk_remaining > 0:
-                    return
-                elif self.chunk_remaining < 0:
-                    raise Exception(f"Remaining bytes {self.chunk_remaining}")
-                packet = self.chunk
-                self.chunk = None
-            else:
-                header = struct.unpack(DAHUA_HEADER_FORMAT, data[0:32])
-                if header[0] != DAHUA_PROTO_DHIP:
+            self.chunk += data
+            while len(self.chunk) > 0:
+                if len(self.chunk) < self.header_len:
+                    break
+                packet_proto, *_, packet_len = struct.unpack(
+                    DAHUA_HEADER_FORMAT, self.chunk[0:self.header_len])
+                if packet_proto != DAHUA_PROTO_DHIP:
                     raise Exception("Wrong proto")
-                packet = data[32:].decode("utf-8", "ignore")
-                if header[4] > len(packet):
-                    self.chunk = packet
-                    self.chunk_remaining = header[4] - len(packet)
-                    return
+                tail = self.header_len + packet_len
+                if tail > len(self.chunk):
+                    break
+                packet = self.chunk[self.header_len:tail].decode(
+                    "utf-8", "ignore")
+                self.chunk = self.chunk[tail:]
 
-            _LOGGER.debug("<<< {}".format(packet.strip("\n")))
-            message = json.loads(packet)
+                _LOGGER.debug("<<< {}".format(packet.strip("\n")))
+                message = json.loads(packet)
 
-            if self.on_response is not None \
-                    and self.on_response_id == message["id"]:
-                self.on_response.set_result(message)
-            else:
-                self.receive(message)
+                if self.on_response is not None \
+                        and self.on_response_id == message["id"]:
+                    self.on_response.set_result(message)
+                else:
+                    self.receive(message)
         except Exception as e:
             self.on_connection_lost.set_exception(e)
 
@@ -161,19 +156,19 @@ class DahuaVTOClient(asyncio.Protocol):
             + data.encode("utf-8", "ignore"))
         return self.request_id
 
-    async def command(self, message):
+    async def command(self, message, timeout=5):
         self.on_response = self.loop.create_future()
         self.on_response_id = self.send(message)
         try:
-            return await asyncio.wait_for(self.on_response, timeout=5)
+            return await asyncio.wait_for(self.on_response, timeout=timeout)
         finally:
             self.on_response = self.on_response_id = None
 
-    async def open_door(self, channel, short_number):
-        object_id = await self.command({
+    async def open_door(self, channel, short_number, timeout):
+        object_id = (await self.command({
             "method": "accessControl.factory.instance",
-            "params": {"channel": channel}})
-        if object_id.get("result"):
+            "params": {"channel": channel}}, timeout))["result"]
+        if object_id:
             try:
                 await self.command({
                     "method": "accessControl.openDoor", "object": object_id,
@@ -181,6 +176,23 @@ class DahuaVTOClient(asyncio.Protocol):
             finally:
                 await self.command({
                     "method": "accessControl.destroy", "object": object_id})
+
+    async def send_command(self, method, params, event, tag, timeout):
+        if isinstance(method, dict):
+            message = method
+        else:
+            message = {"method": method}
+        if params:
+            message["params"] = params
+        result = await self.command(message, timeout)
+        if event:
+            del result["id"]
+            del result["session"]
+            result["method"] = method
+            if tag:
+                result["tag"] = tag
+            result["entity_id"] = self.entity.entity_id
+            self.hass.bus.fire(DOMAIN, result)
 
     async def heartbeat_loop(self):
         result = await self.command({"method": "magicBox.getSystemInfo"})
@@ -225,7 +237,7 @@ class DahuaVTO(Entity):
                 on_connection_lost = self.hass.loop.create_future()
                 t, self.protocol = await self.hass.loop.create_connection(
                     lambda: DahuaVTOClient(
-                        self.hass, self._name, self.config[CONF_USERNAME],
+                        self.hass, self, self.config[CONF_USERNAME],
                         self.config[CONF_PASSWORD], on_connection_lost),
                     self.config[CONF_HOST], self.config[CONF_PORT])
                 try:

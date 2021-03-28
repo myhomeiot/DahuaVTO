@@ -2,11 +2,31 @@ open_door:
   description: Open door
   fields:
     entity_id:
-      description: Entity ID of sensor
+      description: Entity ID of the sensor
       example: sensor.dahua_vto
     channel:
       description: Number of channel starting from 1
       example: 1
     short_number:
-      description: Short number to show in log as Room No.
+      description: Short number to show in the log as Room No., default HA
       example: HA
+    timeout:
+      description: Command execution timeout, default 5
+
+send_command:
+  description: Send command
+  fields:
+    entity_id:
+      description: Entity ID of the sensor
+      example: sensor.dahua_vto
+    method:
+      description: "Method name, example: magicBox.getBootParameter"
+      example: system.listService
+    params:
+      description: "Method parameters, example: {names: ['serverip', 'ver']}"
+    event:
+      description: Fire event with result, default true
+    tag:
+      description: "Tag, will be present in event data, example: 1 or {name: tag}"
+    timeout:
+      description: Command execution timeout, default 5

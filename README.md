@@ -14,22 +14,8 @@ Folowing models **should** work:
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
 
 Following models may work:
-* VTO12xx
-* VTO2101
-* VTO2211
-* VTO4202
-* VTO6xxx
-* VTO6221
-
-* VTH15xx
-* VTH1550
-* VTH16xx
-* VTH2201
-* VTH2421
-* VTH5222
-* VTH5341
-* VTH5421
-
+* VTO12xx, VTO2101, VTO2211, VTO4202, VTO6xxx, VTO6221
+* VTH15xx, VTH1550, VTH16xx, VTH2201, VTH2421, VTH5222, VTH5341, VTH5421
 * VTS5240
 
 # Installation:
@@ -53,7 +39,7 @@ sensor:
     scan_interval: SCAN_INTERVAL_HERE optional, default 60
 ```
 
-Example:
+#### Example
 ```yaml
   - platform: dahua_vto
     name: Dahua VTO
@@ -96,6 +82,20 @@ lock:
         title: "{{ trigger.event.data.Code }}"
         message: "{{ trigger.event.data }}"
 
+- alias: Dahua VTO Command Result
+  mode: queued
+  trigger:
+    - platform: event
+      event_type: dahua_vto
+  condition:
+    - condition: template
+      value_template: "{{ trigger.event.data.method | string != '' }}"
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "{{ trigger.event.data.method }}"
+        message: "{{ trigger.event.data }}"
+
 - alias: Dahua VTO
   mode: queued
   trigger:
@@ -106,11 +106,11 @@ lock:
   action:
     - choose:
         - conditions: >
-            {{ trigger.event.data.Data.State | int in [0, 1, 2, 6] }}
+            {{ trigger.event.data.Data.State | int in [0, 1, 2, 5, 6] }}
           sequence:
             - service: persistent_notification.create
               data:
-                title: Doorbell Ring
+                title: "{{ 'Doorbell Ring' if trigger.event.data.Data.State | int in [1, 2] else 'Doorbell No Ring' }}"
                 message: "{{ trigger.event.data }}"
         - conditions: >
             {{ trigger.event.data.Data.State | int == 8 }}
@@ -135,6 +135,51 @@ lock:
           data:
             title: "Unknown state {{ trigger.event.data.Data.State | int }}"
             message: "{{ trigger.event.data }}"
+```
+
+# Commands and Events
+
+You can send any command using the service `dahua_vto.send_command` and receive reply as event.
+I doesn't found documentation but you can grab some commands and their parameters from [Dahua-JSON-Debug-Console-v2.py](https://github.com/mcw0/Tools)
+
+All device `client.notifyEventStream` messages you will receive as events, information about some of them you can find [here](https://github.com/elad-bar/DahuaVTO2MQTT/blob/master/MQTTEvents.MD)
+For most of the cases you can use `BackKeyLigh`t event `State`, the list of some of them you can found in table below. Possible that in your case the `State` will be different and this depends from the device model.
+
+#### BackKeyLight States
+| State | Description |
+| ----- | ----------- |
+| 0     | OK, No Call/Ring |
+| 1, 2  | Call/Ring |
+| 5     | Call answered from VTH |
+| 6     | Call **not** answered |
+| 8     | Unlock |
+| 9     | Unlock failed |
+| 11    | Unknown, as result of **magicBox.getExitTime** command after VTO reboot |
+
+#### Some command examples
+```yaml
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: system.listService
+
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: magicBox.listMethod
+
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: magicBox.reboot
+  params: {delay: 60}
+  tag: alert
+
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: magicBox.getBootParameter
+  params: {names: ['serverip', 'ver']}
 ```
 
 # Debugging
