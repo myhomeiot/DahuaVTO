@@ -142,8 +142,11 @@ lock:
 You can send any command using the service `dahua_vto.send_command` and receive reply as event.
 I doesn't found documentation but you can grab some commands and their parameters from [Dahua-JSON-Debug-Console-v2.py](https://github.com/mcw0/Tools)
 
-All device `client.notifyEventStream` messages you will receive as events, information about some of them you can find [here](https://github.com/elad-bar/DahuaVTO2MQTT/blob/master/MQTTEvents.MD)
-For most of the cases you can use `BackKeyLigh`t event `State`, the list of some of them you can found in table below. Possible that in your case the `State` will be different and this depends from the device model.
+All device `client.notifyEventStream` messages you will receive as events, information about some of them you can find [here](https://github.com/elad-bar/DahuaVTO2MQTT/blob/master/MQTTEvents.MD).
+
+For most of the cases you can use `BackKeyLight` event `State`, the list of some of them you can found in table below.
+
+Possible that in your case the `State` will be different and this depends from the device model.
 
 #### BackKeyLight States
 | State | Description |
