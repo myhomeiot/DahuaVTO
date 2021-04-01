@@ -1,5 +1,3 @@
-[![Validate](https://github.com/myhomeiot/DahuaVTO/workflows/Validate/badge.svg)](https://github.com/myhomeiot/DahuaVTO/actions)
-
 A Home Assistant custom integration for control Dahua VTO/VTH devices.
 
 The following models are reported as working:
@@ -155,6 +153,7 @@ Possible that in your case the `State` will be different and this depends from t
 | 1, 2  | Call/Ring |
 | 5     | Call answered from VTH |
 | 6     | Call **not** answered |
+| 7     | VTH calling VTO |
 | 8     | Unlock |
 | 9     | Unlock failed |
 | 11    | Unknown, as result of **magicBox.getExitTime** command after VTO reboot |
@@ -199,6 +198,7 @@ logger:
 # Useful Links
 
 - [@mcw0 Dahua-JSON-Debug-Console-v2.py](https://github.com/mcw0/Tools)
+- [@Antori91 Dahua-VTH-SecPanel.py](https://github.com/Antori91/Home_Automation/blob/master/Alarm%20Server/Dahua-VTH-SecPanel.py)
 - [Dahua intercom - API](https://ipcamtalk.com/threads/dahua-intercom-api-for-vth1550ch.45455)
 - ftp://ftp.asm.cz/Dahua/videovratni
 

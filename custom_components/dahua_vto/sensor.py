@@ -77,7 +77,7 @@ class DahuaVTOClient(asyncio.Protocol):
         if self.heartbeat is not None:
             self.heartbeat.cancel()
             self.heartbeat = None
-        if not self.on_connection_lost.done():
+        if not self.on_connection_lost.cancelled():
             self.on_connection_lost.set_result(True)
 
     def hashed_password(self, random, realm):
@@ -121,8 +121,8 @@ class DahuaVTOClient(asyncio.Protocol):
             while len(self.chunk) > 0:
                 if len(self.chunk) < self.header_len:
                     break
-                packet_proto, *_, packet_len = struct.unpack(
-                    DAHUA_HEADER_FORMAT, self.chunk[0:self.header_len])
+                packet_proto, *_, packet_len = struct.unpack_from(
+                    DAHUA_HEADER_FORMAT, self.chunk)
                 if packet_proto != DAHUA_PROTO_DHIP:
                     raise Exception("Wrong proto")
                 tail = self.header_len + packet_len
@@ -132,7 +132,7 @@ class DahuaVTOClient(asyncio.Protocol):
                     "utf-8", "ignore")
                 self.chunk = self.chunk[tail:]
 
-                _LOGGER.debug("<<< {}".format(packet.strip("\n")))
+                _LOGGER.debug("<<< {}".format(packet.rstrip()))
                 message = json.loads(packet)
 
                 if self.on_response is not None \
