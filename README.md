@@ -1,3 +1,5 @@
+[![Validate](https://github.com/myhomeiot/DahuaVTO/actions/workflows/validate.yaml/badge.svg)](https://github.com/myhomeiot/DahuaVTO/actions/workflows/validate.yaml)
+
 A Home Assistant custom integration for control Dahua VTO/VTH devices.
 
 The following models are reported as working:
