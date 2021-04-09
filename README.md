@@ -2,19 +2,23 @@
 
 A Home Assistant custom integration for control Dahua VTO/VTH devices.
 
+**If you have questions or problems with this integration you can check [this](https://community.home-assistant.io/t/dahua-vto-custom-integration) thread.**
+If your model working but it's not in the supported list please share this information with community in the thread above.
+
 The following models are reported as working:
 * [VTO2111](https://www.dahuasecurity.com/search/products?keyword=VTO2111)
+* [VTO2202](https://www.dahuasecurity.com/search/products?keyword=VTO2202)
+* [VTO2211](https://www.dahuasecurity.com/search/products?keyword=VTO2211)
 * [VTH5221](https://www.dahuasecurity.com/search/products?keyword=VTH5221)
 
 Folowing models **should** work:
 * [VTO1220](https://www.dahuasecurity.com/search/products?keyword=VTO1220)
 * [VTO2000](https://www.dahuasecurity.com/search/products?keyword=VTO2000)
-* [VTO2202](https://www.dahuasecurity.com/search/products?keyword=VTO2202)
 * [VTO3211](https://www.dahuasecurity.com/search/products?keyword=VTO3211)
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
 
 Following models may work:
-* VTO12xx, VTO2101, VTO2211, VTO4202, VTO6xxx, VTO6221
+* VTO12xx, VTO2101, VTO4202, VTO6xxx, VTO6221
 * VTH15xx, VTH1550, VTH16xx, VTH2201, VTH2421, VTH5222, VTH5341, VTH5421
 * VTS5240
 
