@@ -9,12 +9,12 @@ The following models are reported as working:
 * [VTO2111](https://www.dahuasecurity.com/search/products?keyword=VTO2111)
 * [VTO2202](https://www.dahuasecurity.com/search/products?keyword=VTO2202)
 * [VTO2211](https://www.dahuasecurity.com/search/products?keyword=VTO2211)
+* [VTO3211](https://www.dahuasecurity.com/search/products?keyword=VTO3211)
 * [VTH5221](https://www.dahuasecurity.com/search/products?keyword=VTH5221)
 
 Folowing models **should** work:
 * [VTO1220](https://www.dahuasecurity.com/search/products?keyword=VTO1220)
 * [VTO2000](https://www.dahuasecurity.com/search/products?keyword=VTO2000)
-* [VTO3211](https://www.dahuasecurity.com/search/products?keyword=VTO3211)
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
 
 Following models may work:
