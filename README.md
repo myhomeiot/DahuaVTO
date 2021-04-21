@@ -54,6 +54,9 @@ sensor:
 ```
 
 #### Lock example with call to open door service
+
+**Note:** If you change a name of integration `name: Dahua VTO`, you should change `entity_id: sensor.dahua_vto` in example to your sensor name which you can found in Home Assistant Developer Tools.
+
 ```yaml
 timer:
   door_lock:
