@@ -104,10 +104,12 @@ class DahuaVTOClient(asyncio.Protocol):
                 raise Exception("{}: {}".format(
                     error.get("code"), error.get("message")))
         elif message["id"] == 2:
-            self.keepAliveInterval = None if params is None else params.get("keepAliveInterval")
+            self.keepAliveInterval = None if params is None \
+                else params.get("keepAliveInterval")
             if self.keepAliveInterval is None:
                 self.keepAliveInterval = DEFAULT_KEEPALIVEINTERVAL
-                _LOGGER.debug(f"Using default keepAliveInterval ({self.keepAliveInterval})")
+                _LOGGER.debug(f"Using default keepAliveInterval "
+                              f"({self.keepAliveInterval})")
             if self.heartbeat is not None:
                 raise Exception("Heartbeat already run")
             self.heartbeat = self.loop.create_task(self.heartbeat_loop())
