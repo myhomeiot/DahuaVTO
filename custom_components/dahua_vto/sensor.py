@@ -23,6 +23,8 @@ DEFAULT_NAME = "Dahua VTO"
 DEFAULT_PORT = 5000
 DEFAULT_TIMEOUT = 10
 
+DEFAULT_KEEPALIVEINTERVAL = 60
+
 _LOGGER = logging.getLogger(__name__)
 
 # Validation of the user's configuration
@@ -102,9 +104,10 @@ class DahuaVTOClient(asyncio.Protocol):
                 raise Exception("{}: {}".format(
                     error.get("code"), error.get("message")))
         elif message["id"] == 2:
-            self.keepAliveInterval = params.get("keepAliveInterval")
+            self.keepAliveInterval = None if params is None else params.get("keepAliveInterval")
             if self.keepAliveInterval is None:
-                raise Exception("keepAliveInterval")
+                self.keepAliveInterval = DEFAULT_KEEPALIVEINTERVAL
+                _LOGGER.debug(f"Using default keepAliveInterval ({self.keepAliveInterval})")
             if self.heartbeat is not None:
                 raise Exception("Heartbeat already run")
             self.heartbeat = self.loop.create_task(self.heartbeat_loop())
