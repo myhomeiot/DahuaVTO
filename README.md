@@ -6,20 +6,21 @@ A Home Assistant custom integration for control Dahua VTO/VTH devices.
 If your model working but it's not in the supported list please share this information with community in the thread above.
 
 The following models are reported as working:
+* [VTO2000](https://www.dahuasecurity.com/search/products?keyword=VTO2000)
 * [VTO2111](https://www.dahuasecurity.com/search/products?keyword=VTO2111)
 * [VTO2202](https://www.dahuasecurity.com/search/products?keyword=VTO2202)
 * [VTO2211](https://www.dahuasecurity.com/search/products?keyword=VTO2211)
 * [VTO3211](https://www.dahuasecurity.com/search/products?keyword=VTO3211)
+* [VTH1550](https://www.dahuasecurity.com/search/products?keyword=VTH1550)
 * [VTH5221](https://www.dahuasecurity.com/search/products?keyword=VTH5221)
 
 Folowing models **should** work:
 * [VTO1220](https://www.dahuasecurity.com/search/products?keyword=VTO1220)
-* [VTO2000](https://www.dahuasecurity.com/search/products?keyword=VTO2000)
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
 
 Following models may work:
 * VTO12xx, VTO2101, VTO4202, VTO6xxx, VTO6221
-* VTH15xx, VTH1550, VTH16xx, VTH2201, VTH2421, VTH5222, VTH5341, VTH5421
+* VTH15xx, VTH16xx, VTH2201, VTH2421, VTH5222, VTH5341, VTH5421
 * VTS5240
 
 # Installation:
@@ -86,7 +87,7 @@ lock:
   action:
     - service: persistent_notification.create
       data:
-        title: "{{ trigger.event.data.Code }}"
+        title: "{{ trigger.event.data.Code if trigger.event.data.Code is defined else 'Unknown Code' }}"
         message: "{{ trigger.event.data }}"
 
 - alias: Dahua VTO Command Result
@@ -96,7 +97,7 @@ lock:
       event_type: dahua_vto
   condition:
     - condition: template
-      value_template: "{{ trigger.event.data.method | string != '' }}"
+      value_template: "{{ trigger.event.data.method is defined }}"
   action:
     - service: persistent_notification.create
       data:
