@@ -1,3 +1,5 @@
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 [![Validate](https://github.com/myhomeiot/DahuaVTO/actions/workflows/validate.yaml/badge.svg)](https://github.com/myhomeiot/DahuaVTO/actions/workflows/validate.yaml)
 
 A Home Assistant custom integration for control Dahua VTO/VTH devices.
