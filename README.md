@@ -4,6 +4,8 @@
 
 A Home Assistant custom integration for control Dahua VTO/VTH devices.
 
+Please ⭐️ this repo if you find it useful.
+
 **If you have questions or problems with this integration you can check [this](https://community.home-assistant.io/t/dahua-vto-custom-integration) thread.**
 If your model working but it's not in the supported list please share this information with community in the thread above.
 
@@ -140,6 +142,13 @@ lock:
               data:
                 title: Unlock failed
                 message: "{{ trigger.event.data }}"
+        - conditions: >
+            {{ trigger.event.data.Data.State | int == 11 }}
+          sequence:
+            - service: persistent_notification.create
+              data:
+                title: Device rebooted
+                message: "{{ trigger.event.data }}"
       default:
         - service: persistent_notification.create
           data:
@@ -163,12 +172,13 @@ Possible that in your case the `State` will be different and this depends from t
 | ----- | ----------- |
 | 0     | OK, No Call/Ring |
 | 1, 2  | Call/Ring |
+| 4     | Voice message |
 | 5     | Call answered from VTH |
 | 6     | Call **not** answered |
 | 7     | VTH calling VTO |
 | 8     | Unlock |
 | 9     | Unlock failed |
-| 11    | Unknown, as result of **magicBox.getExitTime** command after VTO reboot |
+| 11    | Device rebooted |
 
 #### Some command examples
 ```yaml
