@@ -11,6 +11,7 @@ If your model working but it's not in the supported list please share this infor
 
 The following models are reported as working:
 * [VTO2000](https://www.dahuasecurity.com/search/products?keyword=VTO2000)
+* [VTO2101](https://www.dahuasecurity.com/search/products?keyword=VTO2101)
 * [VTO2111](https://www.dahuasecurity.com/search/products?keyword=VTO2111)
 * [VTO2202](https://www.dahuasecurity.com/search/products?keyword=VTO2202)
 * [VTO2211](https://www.dahuasecurity.com/search/products?keyword=VTO2211)
@@ -23,7 +24,7 @@ Folowing models **should** work:
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
 
 Following models may work:
-* VTO12xx, VTO2101, VTO4202, VTO6xxx, VTO6221
+* VTO12xx, VTO4202, VTO6xxx, VTO6221
 * VTH15xx, VTH16xx, VTH2201, VTH2421, VTH5222, VTH5341, VTH5421
 * VTS5240
 
