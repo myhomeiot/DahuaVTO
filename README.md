@@ -30,9 +30,9 @@ Following models may work:
 
 # Installation:
 
-Copy the `dahua_vto` folder and all of its contents into your Home Assistant's custom_components folder. This is often located inside of your /config folder. If you are running Hass.io, use SAMBA to copy the folder over. If you are running Home Assistant Supervised, the custom_components folder might be located at /usr/share/hassio/homeassistant. It is possible that your custom_components folder does not exist. If that is the case, create the folder in the proper location, and then copy the `dahua_vto` folder and all of its contents inside the newly created custom_components folder.
+The easiest way to install the integration is with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this integration in the HACS store under integrations.
 
-Alternatively, you can install localtuya through HACS by adding this repository.
+Alternatively, you can install it manually. Just copy the `dahua_vto` folder and all of its contents into your Home Assistant's custom_components folder. This is often located inside of your /config folder. If you are running Hass.io, use SAMBA to copy the folder over. If you are running Home Assistant Supervised, the custom_components folder might be located at /usr/share/hassio/homeassistant. It is possible that your custom_components folder does not exist. If that is the case, create the folder in the proper location, and then copy the `dahua_vto` folder and all of its contents inside the newly created custom_components folder. The disadvantage of a manual installation is that you won't be notified about updates.
 
 # Configuration Examples
 
