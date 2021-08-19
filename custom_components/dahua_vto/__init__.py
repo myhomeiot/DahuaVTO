@@ -77,11 +77,11 @@ async def async_setup(hass: HomeAssistant, config: dict):
             raise HomeAssistantError("entity not found")
 
     hass.data.setdefault(DOMAIN, {})
-    hass.helpers.service.async_register_admin_service(
+    hass.services.async_register(
         DOMAIN, SERVICE_OPEN_DOOR, service_open_door,
         schema=SERVICE_OPEN_DOOR_SCHEMA
     )
-    hass.helpers.service.async_register_admin_service(
+    hass.services.async_register(
         DOMAIN, SERVICE_SEND_COMMAND, service_send_command,
         schema=SERVICE_SEND_COMMAND_SCHEMA
     )
