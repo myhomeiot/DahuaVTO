@@ -5,7 +5,8 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.const import CONF_ENTITY_ID, CONF_TIMEOUT, CONF_EVENT
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, Unauthorized, UnknownUser
+from homeassistant.auth.permissions.const import POLICY_CONTROL
 from .sensor import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -42,10 +43,27 @@ SERVICE_SEND_COMMAND_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
+    async def check_permissions(event, entity_id):
+        user = await hass.auth.async_get_user(event.context.user_id)
+        if user is None:
+            raise UnknownUser(
+                context=event.context,
+                entity_id=entity_id,
+                permission=POLICY_CONTROL,
+            )
+        if not user.permissions.check_entity(entity_id, POLICY_CONTROL):
+            raise Unauthorized(
+                context=event.context,
+                entity_id=entity_id,
+                permission=POLICY_CONTROL,
+            )
+
     async def service_open_door(event):
+        user = await hass.auth.async_get_user(event.context.user_id)
         for entry in hass.data[DOMAIN]:
             entity = hass.data[DOMAIN][entry]
             if entity.entity_id == event.data[CONF_ENTITY_ID]:
+                await check_permissions(event, entity.entity_id)
                 if entity.protocol is None:
                     raise HomeAssistantError("not connected")
                 try:
@@ -62,6 +80,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
         for entry in hass.data[DOMAIN]:
             entity = hass.data[DOMAIN][entry]
             if entity.entity_id == event.data[CONF_ENTITY_ID]:
+                await check_permissions(event, entity.entity_id)
                 if entity.protocol is None:
                     raise HomeAssistantError("not connected")
                 try:
