@@ -1,32 +1,72 @@
 open_door:
-  description: Open door
+  name: Open door
+  description: Open the door
   fields:
-    entity_id:
-      description: Entity ID of the sensor
-      example: sensor.dahua_vto
+    <<: &entity_id
+      entity_id:
+        name: Entity ID
+        description: Entity ID of the Dahua VTO sensor
+        required: true
+        example: sensor.dahua_vto
+        selector:
+          entity:
+            domain: sensor
     channel:
+      name: Channel
       description: Number of channel starting from 1
+      required: true
       example: 1
+      selector:
+        number:
+          min: 1
+          max: 15
     short_number:
-      description: Short number to show in the log as Room No., default HA
+      name: Short Number
+      description: Short number to show in the log as Room No.
+      default: HA
       example: HA
-    timeout:
-      description: Command execution timeout, default 5
+      selector:
+        text:
+    <<: &timeout
+      timeout:
+        name: Timeout
+        description: Command execution timeout
+        default: 5
+        example: 5
+        selector:
+          number:
+            min: 1
+            max: 99
 
 send_command:
-  description: Send command
+  name: Send command
+  description: Send the command
   fields:
-    entity_id:
-      description: Entity ID of the sensor
-      example: sensor.dahua_vto
+    <<: *entity_id
     method:
+      name: Method
       description: "Method name, example: magicBox.getBootParameter"
+      required: true
       example: system.listService
+      selector:
+        object:
     params:
+      name: Params
       description: "Method parameters, example: {names: ['serverip', 'ver']}"
+      example: "{names: ['serverip', 'ver']}"
+      selector:
+        object:
     event:
-      description: Fire event with result, default true
+      name: Event
+      description: Fire event with result
+      default: True
+      example: True
+      selector:
+        boolean:
     tag:
+      name: Tag
       description: "Tag, will be present in event data, example: 1 or {name: tag}"
-    timeout:
-      description: Command execution timeout, default 5
+      example: "{name: tag}"
+      selector:
+        object:
+    <<: *timeout

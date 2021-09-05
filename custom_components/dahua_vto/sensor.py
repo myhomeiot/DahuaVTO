@@ -4,13 +4,14 @@ import struct
 import asyncio
 import hashlib
 import logging
-
-from homeassistant.helpers.entity import Entity
-import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+
+from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, \
-    CONF_USERNAME, CONF_PASSWORD, CONF_TIMEOUT
+from homeassistant.const import CONF_ENTITY_ID, CONF_NAME, CONF_HOST, \
+    CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_TIMEOUT, CONF_EVENT
+from homeassistant.exceptions import HomeAssistantError
 
 DOMAIN = "dahua_vto"
 DAHUA_PROTO_DHIP = 0x5049484400000020
@@ -38,6 +39,38 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
+# Validation of the services
+CONF_CHANNEL = "channel"
+CONF_SHORT_NUMBER = "short_number"
+CONF_METHOD = "method"
+CONF_PARAMS = "params"
+CONF_TAG = "tag"
+
+SERVICE_DEFAULT_TIMEOUT = 5
+
+SERVICE_OPEN_DOOR = "open_door"
+SERVICE_OPEN_DOOR_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENTITY_ID): cv.string,
+        vol.Required(CONF_CHANNEL): int,
+        vol.Optional(CONF_SHORT_NUMBER, default="HA"): cv.string,
+        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+    }
+)
+
+SERVICE_SEND_COMMAND = "send_command"
+SERVICE_SEND_COMMAND_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENTITY_ID): cv.string,
+        vol.Required(CONF_METHOD): object,
+        vol.Optional(CONF_PARAMS, default=None): object,
+        vol.Optional(CONF_EVENT, default=True): bool,
+        vol.Optional(CONF_TAG, default=None): object,
+        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+    }
+)
+
+
 async def async_setup_platform(
         hass, config, add_entities, discovery_info=None
 ):
@@ -47,6 +80,18 @@ async def async_setup_platform(
     hass.data[DOMAIN][name] = entity
     add_entities([entity])
     hass.loop.create_task(entity.async_run())
+
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+        SERVICE_OPEN_DOOR,
+        SERVICE_OPEN_DOOR_SCHEMA,
+        "async_open_door"
+    )
+    platform.async_register_entity_service(
+        SERVICE_SEND_COMMAND,
+        SERVICE_SEND_COMMAND_SCHEMA,
+        "async_send_command"
+    )
     return True
 
 
@@ -281,3 +326,21 @@ class DahuaVTO(Entity):
 
     def update(self):
         self._state = 'OK' if self.protocol is not None else None
+
+    async def async_open_door(self, channel, short_number, timeout) -> None:
+        if self.protocol is None:
+            raise HomeAssistantError("not connected")
+        try:
+            await self.protocol.open_door(channel - 1, short_number, timeout)
+        except asyncio.TimeoutError:
+            raise HomeAssistantError("timeout")
+
+    async def async_send_command(self, method, params,
+                                 event, tag, timeout) -> None:
+        if self.protocol is None:
+            raise HomeAssistantError("not connected")
+        try:
+            await self.protocol.send_command(method, params,
+                                             event, tag, timeout)
+        except asyncio.TimeoutError:
+            raise HomeAssistantError("timeout")
