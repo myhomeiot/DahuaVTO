@@ -159,7 +159,8 @@ lock:
 
 # Commands and Events
 
-You can send any command using the service `dahua_vto.send_command` and receive reply as event.
+You can send any command using the service `dahua_vto.send_command` or `dahua_vto.send_instance_command` and receive reply as event.
+`dahua_vto.send_instance_command` sequential call to service.factory.instance, service.method with object returned by factory.instance and service.destroy, where service it's a first part of the `method` before `.`. Result of service.method returned as event.
 I doesn't found documentation but you can grab some commands and their parameters from [Dahua-JSON-Debug-Console-v2.py](https://github.com/mcw0/Tools)
 
 All device `client.notifyEventStream` messages you will receive as events, information about some of them you can find [here](https://github.com/elad-bar/DahuaVTO2MQTT/blob/master/MQTTEvents.MD).
@@ -205,6 +206,22 @@ data:
   entity_id: sensor.dahua_vto
   method: magicBox.getBootParameter
   params: {names: ['serverip', 'ver']}
+
+# Cancel VTO Call
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: console.runCmd
+  params: {'command': 'hc'}
+  event: false
+
+# Delete VTH Records
+service: dahua_vto.send_instance_command
+data:
+  entity_id: sensor.dahua_vth
+  method: RecordUpdater.clear
+  instance_params: {'name': 'VideoTalkMissedLog'}
+  event: false
 ```
 
 # Debugging

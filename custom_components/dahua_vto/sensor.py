@@ -43,20 +43,11 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 CONF_CHANNEL = "channel"
 CONF_SHORT_NUMBER = "short_number"
 CONF_METHOD = "method"
+CONF_INSTANCE_PARAMS = "instance_params"
 CONF_PARAMS = "params"
 CONF_TAG = "tag"
 
 SERVICE_DEFAULT_TIMEOUT = 5
-
-SERVICE_OPEN_DOOR = "open_door"
-SERVICE_OPEN_DOOR_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_ENTITY_ID): cv.string,
-        vol.Required(CONF_CHANNEL): int,
-        vol.Optional(CONF_SHORT_NUMBER, default="HA"): cv.string,
-        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
-    }
-)
 
 SERVICE_SEND_COMMAND = "send_command"
 SERVICE_SEND_COMMAND_SCHEMA = vol.Schema(
@@ -66,6 +57,29 @@ SERVICE_SEND_COMMAND_SCHEMA = vol.Schema(
         vol.Optional(CONF_PARAMS, default=None): object,
         vol.Optional(CONF_EVENT, default=True): bool,
         vol.Optional(CONF_TAG, default=None): object,
+        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+    }
+)
+
+SERVICE_SEND_INSTANCE_COMMAND = "send_instance_command"
+SERVICE_SEND_INSTANCE_COMMAND_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENTITY_ID): cv.string,
+        vol.Required(CONF_METHOD): object,
+        vol.Optional(CONF_INSTANCE_PARAMS, default=None): object,
+        vol.Optional(CONF_PARAMS, default=None): object,
+        vol.Optional(CONF_EVENT, default=True): bool,
+        vol.Optional(CONF_TAG, default=None): object,
+        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+    }
+)
+
+SERVICE_OPEN_DOOR = "open_door"
+SERVICE_OPEN_DOOR_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENTITY_ID): cv.string,
+        vol.Required(CONF_CHANNEL): int,
+        vol.Optional(CONF_SHORT_NUMBER, default="HA"): cv.string,
         vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
     }
 )
@@ -83,14 +97,19 @@ async def async_setup_platform(
 
     platform = entity_platform.async_get_current_platform()
     platform.async_register_entity_service(
-        SERVICE_OPEN_DOOR,
-        SERVICE_OPEN_DOOR_SCHEMA,
-        "async_open_door"
-    )
-    platform.async_register_entity_service(
         SERVICE_SEND_COMMAND,
         SERVICE_SEND_COMMAND_SCHEMA,
         "async_send_command"
+    )
+    platform.async_register_entity_service(
+        SERVICE_SEND_INSTANCE_COMMAND,
+        SERVICE_SEND_INSTANCE_COMMAND_SCHEMA,
+        "async_send_instance_command"
+    )
+    platform.async_register_entity_service(
+        SERVICE_OPEN_DOOR,
+        SERVICE_OPEN_DOOR_SCHEMA,
+        "async_open_door"
     )
     return True
 
@@ -214,19 +233,6 @@ class DahuaVTOClient(asyncio.Protocol):
         finally:
             self.on_response = self.on_response_id = None
 
-    async def open_door(self, channel, short_number, timeout):
-        object_id = (await self.command({
-            "method": "accessControl.factory.instance",
-            "params": {"channel": channel}}, timeout))["result"]
-        if object_id:
-            try:
-                await self.command({
-                    "method": "accessControl.openDoor", "object": object_id,
-                    "params": {"DoorIndex": 0, "ShortNumber": short_number}})
-            finally:
-                await self.command({
-                    "method": "accessControl.destroy", "object": object_id})
-
     async def send_command(self, method, params, event, tag, timeout):
         if isinstance(method, dict):
             message = method
@@ -243,6 +249,29 @@ class DahuaVTOClient(asyncio.Protocol):
                 result["tag"] = tag
             result["entity_id"] = self.entity.entity_id
             self.hass.bus.fire(DOMAIN, result)
+
+    async def send_instance_command(
+            self, method, instance_params, params, event, tag, timeout
+    ):
+        service = method.partition('.')[0]
+        object_id = (await self.command({
+            "method": f"{service}.factory.instance",
+            "params": instance_params}, timeout))["result"]
+        if object_id:
+            try:
+                result = await self.command({
+                    "method": method, "object": object_id, "params": params})
+                if event:
+                    del result["id"]
+                    del result["session"]
+                    result["method"] = method
+                    if tag:
+                        result["tag"] = tag
+                    result["entity_id"] = self.entity.entity_id
+                    self.hass.bus.fire(DOMAIN, result)
+            finally:
+                await self.command({
+                    "method": f"{service}.destroy", "object": object_id})
 
     async def heartbeat_loop(self):
         result = await self.command({"method": "magicBox.getSystemInfo"})
@@ -327,20 +356,38 @@ class DahuaVTO(Entity):
     def update(self):
         self._state = 'OK' if self.protocol is not None else None
 
+    async def async_send_command(
+            self, method, params, event, tag, timeout
+    ) -> None:
+        if self.protocol is None:
+            raise HomeAssistantError("not connected")
+        try:
+            await self.protocol.send_command(
+                method, params, event, tag, timeout
+            )
+        except asyncio.TimeoutError:
+            raise HomeAssistantError("timeout")
+
+    async def async_send_instance_command(
+            self, method, instance_params, params, event, tag, timeout
+    ) -> None:
+        if self.protocol is None:
+            raise HomeAssistantError("not connected")
+        try:
+            await self.protocol.send_instance_command(
+                method, instance_params, params, event, tag, timeout
+            )
+        except asyncio.TimeoutError:
+            raise HomeAssistantError("timeout")
+
     async def async_open_door(self, channel, short_number, timeout) -> None:
         if self.protocol is None:
             raise HomeAssistantError("not connected")
         try:
-            await self.protocol.open_door(channel - 1, short_number, timeout)
-        except asyncio.TimeoutError:
-            raise HomeAssistantError("timeout")
-
-    async def async_send_command(self, method, params,
-                                 event, tag, timeout) -> None:
-        if self.protocol is None:
-            raise HomeAssistantError("not connected")
-        try:
-            await self.protocol.send_command(method, params,
-                                             event, tag, timeout)
+            await self.protocol.send_instance_command(
+                "accessControl.openDoor", {"channel": channel - 1},
+                {"DoorIndex": 0, "ShortNumber": short_number},
+                None, None, timeout
+            )
         except asyncio.TimeoutError:
             raise HomeAssistantError("timeout")

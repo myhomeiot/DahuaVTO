@@ -1,6 +1,6 @@
-open_door:
-  name: Open door
-  description: Open the door
+send_command:
+  name: Send command
+  description: Send the command
   fields:
     <<: &entity_id
       entity_id:
@@ -11,22 +11,36 @@ open_door:
         selector:
           entity:
             domain: sensor
-    channel:
-      name: Channel
-      description: Number of channel starting from 1
-      required: true
-      example: 1
-      selector:
-        number:
-          min: 1
-          max: 15
-    short_number:
-      name: Short Number
-      description: Short number to show in the log as Room No.
-      default: HA
-      example: HA
-      selector:
-        text:
+    <<: &method
+      method:
+        name: Method
+        description: "Method name, example: magicBox.getBootParameter"
+        required: true
+        example: system.listService
+        selector:
+          object:
+    <<: &params
+      params:
+        name: Params
+        description: "Method parameters, example: {names: ['serverip', 'ver']}"
+        example: "{names: ['serverip', 'ver']}"
+        selector:
+          object:
+    <<: &event
+      event:
+        name: Event
+        description: Fire event with result
+        default: True
+        example: True
+        selector:
+          boolean:
+    <<: &tag
+      tag:
+        name: Tag
+        description: "Tag, will be present in event data, example: 1 or {name: tag}"
+        example: "{name: tag}"
+        selector:
+          object:
     <<: &timeout
       timeout:
         name: Timeout
@@ -38,35 +52,42 @@ open_door:
             min: 1
             max: 99
 
-send_command:
-  name: Send command
-  description: Send the command
+send_instance_command:
+  name: Send instance command
+  description: Send the command to the instance, sequential call to service.factory.instance, service.method with object returned by factory.instance, service.destroy
   fields:
     <<: *entity_id
-    method:
-      name: Method
-      description: "Method name, example: magicBox.getBootParameter"
+    <<: *method
+    instance_params:
+      name: Instance params
+      description: "Instance method parameters, for service.factory.instance call, example: {'name': 'VideoTalkMissedLog'}"
+      example: "{'name': 'VideoTalkMissedLog'}"
+      selector:
+        object:
+    <<: *params
+    <<: *event
+    <<: *tag
+    <<: *timeout
+
+open_door:
+  name: Open door
+  description: Open the door
+  fields:
+    <<: *entity_id
+    channel:
+      name: Channel
+      description: Number of channel starting from 1
       required: true
-      example: system.listService
+      example: 1
       selector:
-        object:
-    params:
-      name: Params
-      description: "Method parameters, example: {names: ['serverip', 'ver']}"
-      example: "{names: ['serverip', 'ver']}"
+        number:
+          min: 1
+          max: 15
+    short_number:
+      name: Short number
+      description: Short number to show in the log as Room No.
+      default: HA
+      example: HA
       selector:
-        object:
-    event:
-      name: Event
-      description: Fire event with result
-      default: True
-      example: True
-      selector:
-        boolean:
-    tag:
-      name: Tag
-      description: "Tag, will be present in event data, example: 1 or {name: tag}"
-      example: "{name: tag}"
-      selector:
-        object:
+        text:
     <<: *timeout
