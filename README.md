@@ -215,7 +215,7 @@ data:
   params: {'command': 'hc'}
   event: false
 
-# Delete VTH Records
+# Clear VTH Call Records
 service: dahua_vto.send_instance_command
 data:
   entity_id: sensor.dahua_vth
