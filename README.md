@@ -73,6 +73,7 @@ lock:
   - platform: template
     name: Door Lock
     value_template: "{{ not is_state('timer.door_lock', 'active') }}"
+    optimistic: false
     lock:
     unlock:
       - service: dahua_vto.open_door
