@@ -158,6 +158,23 @@ lock:
             message: "{{ trigger.event.data }}"
 ```
 
+#### Door status sensor example
+
+Thanks to [@mate](https://community.home-assistant.io/u/mate) for this example. [Here](https://community.home-assistant.io/t/dahua-vto-custom-integration/293693/116) you can also find door open/close events examples received from Dahua VTO.
+
+```yaml
+template:
+  - trigger:
+      - platform: event
+        event_type: dahua_vto
+        event_data:
+          Code: DoorStatus
+    binary_sensor:
+      - name: VTO Door Status
+        state: "{{ trigger.event.data.Data.Status | string == 'Open' }}"
+        device_class: door
+```
+
 # Commands and Events
 
 You can send any command using the service `dahua_vto.send_command` or `dahua_vto.send_instance_command` and receive reply as event.
