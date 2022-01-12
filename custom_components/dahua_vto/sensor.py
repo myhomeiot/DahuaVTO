@@ -20,15 +20,15 @@ DAHUA_REALM_DHIP = 268632079  # DHIP REALM Login Challenge
 DAHUA_LOGIN_PARAMS = {
     "clientType": "", "ipAddr": "(null)", "loginType": "Direct"}
 
-DEFAULT_NAME = "Dahua VTO"
-DEFAULT_PORT = 5000
-DEFAULT_TIMEOUT = 10
-
 DEFAULT_KEEPALIVEINTERVAL = 60
 
 _LOGGER = logging.getLogger(__name__)
 
-# Validation of the user's configuration
+# Validation of the platform configuration
+DEFAULT_NAME = "Dahua VTO"
+DEFAULT_PORT = 5000
+DEFAULT_TIMEOUT = 10
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
     vol.Required(CONF_HOST): cv.string,
@@ -179,10 +179,17 @@ class DahuaVTOClient(asyncio.Protocol):
             self.heartbeat = self.loop.create_task(self.heartbeat_loop())
             self.send({"method": "eventManager.attach",
                        "params": {"codes": ["All"]}})
+            self.send({"method": "configManager.attach",
+                       "params": {"name": "CommGlobal"}})
         elif message.get("method") == "client.notifyEventStream":
-            for message in params.get("eventList"):
-                message["entity_id"] = self.entity.entity_id
-                self.hass.bus.fire(DOMAIN, message)
+            for event in params.get("eventList"):
+                event["entity_id"] = self.entity.entity_id
+                self.hass.bus.fire(DOMAIN, event)
+        elif message.get("method") == "client.notifyConfigChange":
+            table = params.get("table")
+            table["entity_id"] = self.entity.entity_id
+            table["Code"] = message.get("method")
+            self.hass.bus.fire(DOMAIN, table)
 
     def data_received(self, data):
         try:

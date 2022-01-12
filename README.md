@@ -181,7 +181,7 @@ You can send any command using the service `dahua_vto.send_command` or `dahua_vt
 `dahua_vto.send_instance_command` sequential call to service.factory.instance, service.method with object returned by factory.instance and service.destroy, where service it's a first part of the `method` before `.`. Result of service.method returned as event.
 I doesn't found documentation but you can grab some commands and their parameters from [Dahua-JSON-Debug-Console-v2.py](https://github.com/mcw0/Tools)
 
-All device `client.notifyEventStream` messages you will receive as events, information about some of them you can find [here](https://github.com/elad-bar/DahuaVTO2MQTT/blob/master/MQTTEvents.MD).
+All device `client.notifyEventStream` and `client.notifyConfigChange` messages you will receive as events, information about some of them you can find [here](https://github.com/elad-bar/DahuaVTO2MQTT/blob/master/MQTTEvents.MD).
 
 For most of the cases you can use `BackKeyLight` event `State`, the list of some of them you can found in table below.
 
@@ -240,6 +240,30 @@ data:
   method: RecordUpdater.clear
   instance_params: {'name': 'VideoTalkMissedLog'}
   event: false
+
+# Arming the VTH alarm
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vth
+  method: configManager.setConfig
+  params: {'table': {'AlarmEnable': true, 'CurrentProfile': 'Outdoor'}, 'name': 'CommGlobal'}
+  event: false
+
+# Disarming the VTH alarm
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vth
+  method: configManager.setConfig
+  params: {'table': {'AlarmEnable': false, 'CurrentProfile': 'AtHome'}, 'name': 'CommGlobal'}
+  event: false
+
+# Getting the VTH alarm status
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vth
+  method: configManager.getConfig
+  params: {'name': 'CommGlobal'}
+  event: true
 ```
 
 # Debugging

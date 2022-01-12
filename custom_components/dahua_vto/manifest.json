@@ -1,7 +1,7 @@
 {
   "domain": "dahua_vto",
   "name": "Dahua VTO",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "documentation": "https://github.com/myhomeiot/DahuaVTO",
   "issue_tracker": "https://github.com/myhomeiot/DahuaVTO/issues",
   "requirements": [],
