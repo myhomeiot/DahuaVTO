@@ -6,7 +6,7 @@ A Home Assistant custom integration for control Dahua VTO/VTH devices.
 
 Please ⭐️ this repo if you find it useful.
 
-**If you have questions or problems with this integration you can check [this](https://community.home-assistant.io/t/dahua-vto-custom-integration) thread.**
+**If you have questions or problems with this integration you can check [this](https://community.home-assistant.io/t/dahua-vto-custom-integration/293693) thread.**
 If your model working but it's not in the supported list please share this information with community in the thread above.
 
 The following models are reported as working:
