@@ -17,15 +17,20 @@ The following models are reported as working:
 * [VTO2211](https://www.dahuasecurity.com/search/products?keyword=VTO2211)
 * [VTO3211](https://www.dahuasecurity.com/search/products?keyword=VTO3211)
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
+* [VTO4202](https://www.dahuasecurity.com/search/products?keyword=VTO4202)
 * [VTH1550](https://www.dahuasecurity.com/search/products?keyword=VTH1550)
+* [VTH2421](https://www.dahuasecurity.com/search/products?keyword=VTH2421)
 * [VTH5221](https://www.dahuasecurity.com/search/products?keyword=VTH5221)
+* [VIP Vision INTIPRDSDB](https://www.vip-vision.com/product/INTIPRDSDB) (rebranded VTO2111)[^1]
+* [VIP Vision INTIPMONDW](https://www.vip-vision.com/product/INTIPMONDW) (rebranded VTH5221)[^1]
+[^1]: Use firmware 4.300.0000006.0.T, Build: 2019-03-20 or later
 
 Folowing models **should** work:
 * [VTO1220](https://www.dahuasecurity.com/search/products?keyword=VTO1220)
 
 Following models may work:
-* VTO12xx, VTO4202, VTO6xxx, VTO6221
-* VTH15xx, VTH16xx, VTH2201, VTH2421, VTH5222, VTH5341, VTH5421
+* VTO12xx, VTO6xxx, VTO6221
+* VTH15xx, VTH16xx, VTH2201, VTH5222, VTH5341, VTH5421
 * VTS5240
 
 # Installation:
@@ -190,7 +195,7 @@ Possible that in your case the `State` will be different and this depends from t
 #### BackKeyLight States
 | State | Description |
 | ----- | ----------- |
-| 0     | OK, No Call/Ring |
+| 0     | Normal state, No Call/Ring |
 | 1, 2  | Call/Ring |
 | 4     | Voice message |
 | 5     | Call answered from VTH |
