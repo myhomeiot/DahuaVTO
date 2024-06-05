@@ -230,6 +230,14 @@ data:
   method: magicBox.getBootParameter
   params: {names: ['serverip', 'ver']}
 
+# Make VTO Call
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: console.runCmd
+  params: {'command': 'call 9901'}
+  event: false
+
 # Cancel VTO Call
 service: dahua_vto.send_command
 data:
