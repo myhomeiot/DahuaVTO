@@ -18,6 +18,7 @@ The following models are reported as working:
 * [VTO3211](https://www.dahuasecurity.com/search/products?keyword=VTO3211)
 * [VTO3221](https://www.dahuasecurity.com/search/products?keyword=VTO3221)
 * [VTO4202](https://www.dahuasecurity.com/search/products?keyword=VTO4202)
+* [VTO9541D](https://www.dahuasecurity.com/search/products?keyword=VTO9541D)
 * [VTH1550](https://www.dahuasecurity.com/search/products?keyword=VTH1550)
 * [VTH2421](https://www.dahuasecurity.com/search/products?keyword=VTH2421)
 * [VTH5221](https://www.dahuasecurity.com/search/products?keyword=VTH5221)
