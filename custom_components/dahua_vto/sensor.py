@@ -10,8 +10,10 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import CONF_ENTITY_ID, CONF_NAME, CONF_HOST, \
-    CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_TIMEOUT, CONF_EVENT
+    CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_TIMEOUT, CONF_EVENT, \
+    __version__ as HA_VERSION
 from homeassistant.exceptions import HomeAssistantError
+from awesomeversion import AwesomeVersion
 
 DOMAIN = "dahua_vto"
 DAHUA_PROTO_DHIP = 0x5049484400000020
@@ -50,39 +52,33 @@ CONF_TAG = "tag"
 SERVICE_DEFAULT_TIMEOUT = 5
 
 SERVICE_SEND_COMMAND = "send_command"
-SERVICE_SEND_COMMAND_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_ENTITY_ID): cv.string,
-        vol.Required(CONF_METHOD): object,
-        vol.Optional(CONF_PARAMS, default=None): object,
-        vol.Optional(CONF_EVENT, default=True): bool,
-        vol.Optional(CONF_TAG, default=None): object,
-        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
-    }
-)
+SERVICE_SEND_COMMAND_SCHEMA = {
+    vol.Required(CONF_ENTITY_ID): cv.string,
+    vol.Required(CONF_METHOD): object,
+    vol.Optional(CONF_PARAMS, default=None): object,
+    vol.Optional(CONF_EVENT, default=True): bool,
+    vol.Optional(CONF_TAG, default=None): object,
+    vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+}
 
 SERVICE_SEND_INSTANCE_COMMAND = "send_instance_command"
-SERVICE_SEND_INSTANCE_COMMAND_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_ENTITY_ID): cv.string,
-        vol.Required(CONF_METHOD): object,
-        vol.Optional(CONF_INSTANCE_PARAMS, default=None): object,
-        vol.Optional(CONF_PARAMS, default=None): object,
-        vol.Optional(CONF_EVENT, default=True): bool,
-        vol.Optional(CONF_TAG, default=None): object,
-        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
-    }
-)
+SERVICE_SEND_INSTANCE_COMMAND_SCHEMA = {
+    vol.Required(CONF_ENTITY_ID): cv.string,
+    vol.Required(CONF_METHOD): object,
+    vol.Optional(CONF_INSTANCE_PARAMS, default=None): object,
+    vol.Optional(CONF_PARAMS, default=None): object,
+    vol.Optional(CONF_EVENT, default=True): bool,
+    vol.Optional(CONF_TAG, default=None): object,
+    vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+}
 
 SERVICE_OPEN_DOOR = "open_door"
-SERVICE_OPEN_DOOR_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_ENTITY_ID): cv.string,
-        vol.Required(CONF_CHANNEL): int,
-        vol.Optional(CONF_SHORT_NUMBER, default="HA"): cv.string,
-        vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
-    }
-)
+SERVICE_OPEN_DOOR_SCHEMA = {
+    vol.Required(CONF_ENTITY_ID): cv.string,
+    vol.Required(CONF_CHANNEL): int,
+    vol.Optional(CONF_SHORT_NUMBER, default="HA"): cv.string,
+    vol.Optional(CONF_TIMEOUT, default=SERVICE_DEFAULT_TIMEOUT): int,
+}
 
 
 async def async_setup_platform(
@@ -95,20 +91,25 @@ async def async_setup_platform(
     add_entities([entity])
     hass.loop.create_task(entity.async_run())
 
+    # Workaround for https://developers.home-assistant.io/blog/2024/08/27/entity-service-schema-validation
+    is_new_schema = AwesomeVersion(HA_VERSION) >= AwesomeVersion("2024.9.0")
     platform = entity_platform.async_get_current_platform()
     platform.async_register_entity_service(
         SERVICE_SEND_COMMAND,
-        SERVICE_SEND_COMMAND_SCHEMA,
+        SERVICE_SEND_COMMAND_SCHEMA if is_new_schema
+            else vol.Schema(SERVICE_SEND_COMMAND_SCHEMA),
         "async_send_command"
     )
     platform.async_register_entity_service(
         SERVICE_SEND_INSTANCE_COMMAND,
-        SERVICE_SEND_INSTANCE_COMMAND_SCHEMA,
+        SERVICE_SEND_INSTANCE_COMMAND_SCHEMA if is_new_schema
+            else vol.Schema(SERVICE_SEND_INSTANCE_COMMAND_SCHEMA),
         "async_send_instance_command"
     )
     platform.async_register_entity_service(
         SERVICE_OPEN_DOOR,
-        SERVICE_OPEN_DOOR_SCHEMA,
+        SERVICE_OPEN_DOOR_SCHEMA if is_new_schema
+            else vol.Schema(SERVICE_OPEN_DOOR_SCHEMA),
         "async_open_door"
     )
     return True
