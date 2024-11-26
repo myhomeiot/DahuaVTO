@@ -27,6 +27,8 @@ DEFAULT_KEEPALIVEINTERVAL = 60
 _LOGGER = logging.getLogger(__name__)
 
 # Validation of the platform configuration
+CONF_CONFIG_MANAGER_ATTACH = "config_manager_attach"
+
 DEFAULT_NAME = "Dahua VTO"
 DEFAULT_PORT = 5000
 DEFAULT_TIMEOUT = 10
@@ -38,6 +40,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
     vol.Required(CONF_USERNAME): cv.string,
     vol.Required(CONF_PASSWORD): cv.string,
+    vol.Optional(CONF_CONFIG_MANAGER_ATTACH, default=True): cv.boolean,
 })
 
 
@@ -117,11 +120,15 @@ async def async_setup_platform(
 
 class DahuaVTOClient(asyncio.Protocol):
 
-    def __init__(self, hass, entity, username, password, on_connection_lost):
+    def __init__(
+            self, hass, entity, username, password, config_manager_attach,
+            on_connection_lost
+    ):
         self.entity = entity
         self.hass = hass
         self.username = username
         self.password = password
+        self.config_manager_attach = config_manager_attach
         self.loop = asyncio.get_running_loop()
         self.on_connection_lost = on_connection_lost
 
@@ -180,8 +187,9 @@ class DahuaVTOClient(asyncio.Protocol):
             self.heartbeat = self.loop.create_task(self.heartbeat_loop())
             self.send({"method": "eventManager.attach",
                        "params": {"codes": ["All"]}})
-            self.send({"method": "configManager.attach",
-                       "params": {"name": "CommGlobal"}})
+            if self.config_manager_attach:
+                self.send({"method": "configManager.attach",
+                           "params": {"name": "CommGlobal"}})
         elif message.get("method") == "client.notifyEventStream":
             for event in params.get("eventList"):
                 event["entity_id"] = self.entity.entity_id
@@ -325,7 +333,9 @@ class DahuaVTO(Entity):
                 t, self.protocol = await self.hass.loop.create_connection(
                     lambda: DahuaVTOClient(
                         self.hass, self, self.config[CONF_USERNAME],
-                        self.config[CONF_PASSWORD], on_connection_lost),
+                        self.config[CONF_PASSWORD],
+                        self.config[CONF_CONFIG_MANAGER_ATTACH],
+                        on_connection_lost),
                     self.config[CONF_HOST], self.config[CONF_PORT])
                 try:
                     await on_connection_lost
