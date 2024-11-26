@@ -1,11 +1,11 @@
 {
   "domain": "dahua_vto",
   "name": "Dahua VTO",
-  "version": "1.0.8",
+  "codeowners": ["@myhomeiot"],
+  "dependencies": [],
   "documentation": "https://github.com/myhomeiot/DahuaVTO",
+  "iot_class": "local_push",
   "issue_tracker": "https://github.com/myhomeiot/DahuaVTO/issues",
   "requirements": [],
-  "dependencies": [],
-  "codeowners": ["@myhomeiot"],
-  "iot_class": "local_push"
+  "version": "1.0.8"
 }
