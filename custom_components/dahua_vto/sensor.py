@@ -94,25 +94,25 @@ async def async_setup_platform(
     add_entities([entity])
     hass.loop.create_task(entity.async_run())
 
-    # Workaround for https://developers.home-assistant.io/blog/2024/08/27/entity-service-schema-validation
+    # Workaround for https://github.com/home-assistant/core/pull/124102
     is_new_schema = AwesomeVersion(HA_VERSION) >= AwesomeVersion("2024.9.0")
     platform = entity_platform.async_get_current_platform()
     platform.async_register_entity_service(
         SERVICE_SEND_COMMAND,
         SERVICE_SEND_COMMAND_SCHEMA if is_new_schema
-            else vol.Schema(SERVICE_SEND_COMMAND_SCHEMA),
+        else vol.Schema(SERVICE_SEND_COMMAND_SCHEMA),
         "async_send_command"
     )
     platform.async_register_entity_service(
         SERVICE_SEND_INSTANCE_COMMAND,
         SERVICE_SEND_INSTANCE_COMMAND_SCHEMA if is_new_schema
-            else vol.Schema(SERVICE_SEND_INSTANCE_COMMAND_SCHEMA),
+        else vol.Schema(SERVICE_SEND_INSTANCE_COMMAND_SCHEMA),
         "async_send_instance_command"
     )
     platform.async_register_entity_service(
         SERVICE_OPEN_DOOR,
         SERVICE_OPEN_DOOR_SCHEMA if is_new_schema
-            else vol.Schema(SERVICE_OPEN_DOOR_SCHEMA),
+        else vol.Schema(SERVICE_OPEN_DOOR_SCHEMA),
         "async_open_door"
     )
     return True
