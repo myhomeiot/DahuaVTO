@@ -9,9 +9,9 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import CONF_ENTITY_ID, CONF_NAME, CONF_HOST, \
-    CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_TIMEOUT, CONF_EVENT, \
-    __version__ as HA_VERSION
+from homeassistant.const import CONF_ENTITY_ID, CONF_NAME, CONF_UNIQUE_ID, \
+    CONF_HOST, CONF_PORT, CONF_USERNAME, CONF_PASSWORD, CONF_TIMEOUT, \
+    CONF_EVENT, __version__ as HA_VERSION
 from homeassistant.exceptions import HomeAssistantError
 from awesomeversion import AwesomeVersion
 
@@ -35,6 +35,7 @@ DEFAULT_TIMEOUT = 10
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+    vol.Optional(CONF_UNIQUE_ID): cv.string,
     vol.Required(CONF_HOST): cv.string,
     vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.positive_int,
     vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
@@ -320,6 +321,7 @@ class DahuaVTO(Entity):
         self.config = config
 
         self._name = name
+        self._attr_unique_id = config.get(CONF_UNIQUE_ID)
         self._state = None
         self.protocol = None
 
