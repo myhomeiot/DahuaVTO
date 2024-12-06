@@ -206,6 +206,35 @@ Possible that in your case the `State` will be different and this depends from t
 | 9     | Unlock failed |
 | 11    | Device rebooted |
 
+#### Invite Events Attributes
+| Attribute | Description |
+| ----- | ----------- |
+| CallId | Autoincrement value |
+| UserID | VTH ID as set in VTO Configuration |
+| LockNum | Unknown |
+
+#### AccessControl Events Attributes
+| Attribute | Description |
+| ----- | ----------- |
+| CardNo | NFC TAG ID |
+| CardType | Unknown |
+| Method | 1 NFC Unlock, 4 Service OpenDoor Unlock |
+| Name | Method name |
+| Password | Unknown |
+| ReaderID | Not sure, probably reader index if there are many |
+| RecNo | Autoincrement value |
+| Status | 0 Unauthorized, 1 Authorized |
+| Type | Unknown |
+| UserID | User ID that triggered the event |
+
+#### VideoTalkLog Events Attributes
+| Attribute | Description |
+| ----- | ----------- |
+| EndState | "Missed" is missed call from VTO |
+| TalkTime | Talk duration, 0 if missed call |
+| BeginTime | Epoch format timestamp |
+| LocalNumber | VTH ID as set in VTO Configuration |
+
 #### Some command examples
 ```yaml
 service: dahua_vto.send_command
