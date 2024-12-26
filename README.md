@@ -57,6 +57,7 @@ sensor:
 
 #### Example
 ```yaml
+sensor:
   - platform: dahua_vto
     name: Dahua VTO
     host: 192.168.1.2
