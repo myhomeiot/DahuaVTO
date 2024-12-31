@@ -261,6 +261,19 @@ data:
   method: magicBox.getBootParameter
   params: {names: ['serverip', 'ver']}
 
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: configManager.getMemberNames
+  event: true
+
+service: dahua_vto.send_command
+data:
+  entity_id: sensor.dahua_vto
+  method: configManager.getConfig
+  params: {'name': 'AudioOutputVolume'}
+  event: true
+
 # Make VTO Call
 service: dahua_vto.send_command
 data:
